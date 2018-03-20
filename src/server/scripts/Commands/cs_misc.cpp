@@ -123,6 +123,7 @@ public:
             { "wchange",          rbac::RBAC_PERM_COMMAND_WCHANGE,          false, &HandleChangeWeather,           "" },
             { "mailbox",          rbac::RBAC_PERM_COMMAND_MAILBOX,          false, &HandleMailBoxCommand,          "" },
             { "auras  ",          rbac::RBAC_PERM_COMMAND_LIST_AURAS,       false, &HandleAurasCommand,            "" },
+            { "skybox",           rbac::RBAC_PERM_COMMAND_AURA,             false, &HandleSkyboxPlayerCommand,     "" },
         };
         return commandTable;
     }
@@ -2825,7 +2826,74 @@ public:
         }
         return true;
     }
+
+    static bool HandleSkyboxPlayerCommand(ChatHandler * handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        char const* pId = strtok((char*)args, " ");
+        char const* miliseconds = strtok((char*)args, " ");
+        Player* player = handler->GetSession()->GetPlayer();
+        uint32 map = player->GetMapId();
+        uint32 mapCache = player->GetMapId();
+
+        if (map > 2000)
+        {
+            QueryResult mapresult = HotfixDatabase.PQuery("SELECT ParentMapID From map where id = %u", map);
+            Field* mapfields = mapresult->Fetch();
+            map = mapfields[0].GetUInt16();
+
+            QueryResult results = WorldDatabase.PQuery("Select ID from light where MapID = %u", map);
+
+            if (!results)
+            {
+                handler->PSendSysMessage("Aucun résultat n'a été trouvé.");
+                return false;
+            }
+
+            Field* fields = results->Fetch();
+            uint32 replaceID = uint32(atoi(pId));
+            uint32 lightID = fields[0].GetUInt32();
+
+
+            WorldPacket data(SMSG_OVERRIDE_LIGHT, 12);
+            data << lightID;
+            data << replaceID;
+            data << 200;
+
+            //Send to player only!!!
+            handler->GetSession()->SendPacket(&data, true);
+            return true;
+        }
+        else
+        {
+            QueryResult results = WorldDatabase.PQuery("Select ID from light where MapID = %u", player->GetMapId());
+
+            if (!results)
+            {
+                handler->PSendSysMessage("Aucun résultat n'a été trouvé.");
+                return false;
+            }
+
+            Field* fields = results->Fetch();
+            uint32 replaceID = uint32(atoi(pId));
+            uint32 lightID = fields[0].GetUInt32();
+
+            WorldPacket data(SMSG_OVERRIDE_LIGHT, 12);
+            data << lightID;
+            data << replaceID;
+            data << 200;
+
+            //Send to player only!!!
+            handler->GetSession()->SendPacket(&data, true);
+            return true;
+        }
+        return false;
+    }
 };
+
+
 
 void AddSC_misc_commandscript()
 {

@@ -784,6 +784,7 @@ enum RBACPermissions
 	RBAC_PERM_COMMAND_RELOAD_HOTFIXES                        = 1001,
 	RBAC_PERM_COMMAND_GOBJECT_SET_SCALE                      = 1002,
 	RBAC_PERM_COMMAND_NPC_SET_SCALE                          = 1003,
+    //RBAC_PERM_COMMAND_RELOAD_HOTFIXES                        = 1004,
 	
     RBAC_PERM_MAX
 };
