@@ -124,6 +124,8 @@ public:
             { "mailbox",          rbac::RBAC_PERM_COMMAND_MAILBOX,          false, &HandleMailBoxCommand,          "" },
             { "auras  ",          rbac::RBAC_PERM_COMMAND_LIST_AURAS,       false, &HandleAurasCommand,            "" },
             { "skybox",           rbac::RBAC_PERM_COMMAND_AURA,             false, &HandleSkyboxPlayerCommand,     "" },
+            { "custom",           rbac::RBAC_PERM_COMMAND_AURA,             false, &HandleCustomCommand,           "" },
+            { "invisible",        rbac::RBAC_PERM_COMMAND_AURA,             false, &HandleInvisibleCommand,        "" },
         };
         return commandTable;
     }
@@ -2891,6 +2893,54 @@ public:
         }
         return false;
     }
+    static bool HandleCustomCommand(ChatHandler* handler, char const* args)
+         {
+        uint32 barberchairID = 191817;
+        Player * player = handler->GetSession()->GetPlayer();
+        
+            const GameObjectTemplate* objectInfo = sObjectMgr->GetGameObjectTemplate(barberchairID);
+        
+            float x = float(player->GetPositionX());
+            float y = float(player->GetPositionY());
+            float z = float(player->GetPositionZ());
+            float ang = player->GetOrientation();
+            Map * map = player->GetMap();
+        
+            uint32 spawntm = 400;
+        
+            G3D::Quat rotation = G3D::Matrix3::fromEulerAnglesZYX(player->GetOrientation(), 0.f, 0.f);
+            GameObject * object = player->SummonGameObject(barberchairID, x, y, z, ang, QuaternionData(rotation.x, rotation.y, rotation.z, rotation.w), spawntm);
+        
+            player->SummonGameObject(barberchairID, x, y, z, ang, QuaternionData(rotation.x, rotation.y, rotation.z, rotation.w), spawntm);
+            object->DestroyForNearbyPlayers();
+            object->UpdateObjectVisibility();
+        
+            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(110851))
+            {
+                ObjectGuid castId = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, player->GetMapId(), 110851, player->GetMap()->GenerateLowGuid<HighGuid::Cast>());
+                Aura::TryRefreshStackOrCreate(spellInfo, castId, MAX_EFFECT_MASK, player, player);
+            }
+        
+            object->Use(handler->GetSession()->GetPlayer());
+        
+            GameObject * go = player->FindNearestGameObjectOfType(GAMEOBJECT_TYPE_BARBER_CHAIR, 0.01f);
+        player->SetStandState(UnitStandStateType(UNIT_STAND_STATE_SIT_LOW_CHAIR + go->GetGOInfo()->barberChair.chairheight));
+        return true;
+        }
+    
+        static bool HandleInvisibleCommand(ChatHandler* handler, char const* args)
+        {
+            Unit * target = handler->getSelectedUnit();
+        
+            if (!target)
+                target = handler->GetSession()->GetPlayer();
+            else if (target->GetTypeId() == TYPEID_PLAYER && handler->HasLowerSecurity(target->ToPlayer(), ObjectGuid::Empty))
+            return false;
+        
+            target->SetDisplayId(31515);
+        return true;
+        }
+
 };
 
 
