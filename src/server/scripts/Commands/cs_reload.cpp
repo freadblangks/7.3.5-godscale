@@ -64,7 +64,7 @@ EndScriptData */
 #include "WorldPacket.h"
 #include "WorldSocket.h"
 #include "ObjectAccessor.h"
-#include "Corpse.h"
+#include "Corpse.h" 
 #include "Creature.h"
 #include "DynamicObject.h"
 #include "GameObject.h"
@@ -487,6 +487,21 @@ public:
         }
 
         handler->SendGlobalGMSysMessage("Creature template reloaded.");
+
+        //send to player
+
+        Player* player = handler->GetSession()->GetPlayer();
+        Map::PlayerList const& PlayerList = player->GetMap()->GetPlayers();
+        for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
+        {
+            if (Player* _player = itr->GetSource())
+            {
+                if (_player->GetDistance2d(player) < (1600 / 3) && !_player->GetVehicle())
+                {
+                    _player->TeleportTo(_player->GetMapId(), _player->GetPositionX(), _player->GetPositionY(), _player->GetPositionZ(), _player->GetOrientation());
+                }
+            }
+        }
         return true;
     }
 
@@ -1252,7 +1267,8 @@ public:
         sCinematicCameraStore.LoadFromDB();
         sCinematicSequencesStore.LoadFromDB();
         sConversationLineStore.LoadFromDB();
-        sCreatureDisplayInfoStore.LoadFromDB();
+        sCreatureDisplayInfoStoreRaw.LoadFromDB();
+        //sCreatureDisplayInfoStore.LoadFromDB();
         sCreatureDisplayInfoExtraStore.LoadFromDB();
         sCreatureFamilyStore.LoadFromDB();
         sCreatureModelDataStore.LoadFromDB();
@@ -1395,6 +1411,9 @@ public:
         sObjectMgr->LoadItemTemplates();
         sObjectMgr->LoadItemTemplateAddon();
         sObjectMgr->LoadItemScriptNames();
+        sObjectMgr->LoadCreatureTemplates();
+        sObjectMgr->LoadEquipmentTemplates();
+        sObjectMgr->LoadCreatureAddons();
         
             boost::shared_lock<boost::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
         

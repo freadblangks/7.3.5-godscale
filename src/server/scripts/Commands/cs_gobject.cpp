@@ -474,8 +474,24 @@ public:
         object->DestroyForNearbyPlayers();
         object->RelocateStationaryPosition(x, y, z, object->GetOrientation());
         object->GetMap()->GameObjectRelocation(object, x, y, z, object->GetOrientation());
-
         object->SaveToDB();
+
+        //send to player
+
+        Player* player = handler->GetSession()->GetPlayer();
+        Map::PlayerList const& PlayerList = player->GetMap()->GetPlayers();
+        for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
+        {
+            if (Player* _player = itr->GetSource())
+            {
+                if (_player->GetDistance2d(object) < (1600 / 3) && !_player->GetVehicle())
+                {
+                    _player->TeleportTo(_player->GetMapId(), _player->GetPositionX(), _player->GetPositionY(), _player->GetPositionZ(), _player->GetOrientation());
+                }
+            }
+        }
+
+        
 
         handler->PSendSysMessage(LANG_COMMAND_MOVEOBJMESSAGE, std::to_string(object->GetSpawnId()).c_str(), object->GetGOInfo()->name.c_str(), object->GetGUID().ToString().c_str());
 
@@ -710,6 +726,8 @@ public:
         object->DestroyForNearbyPlayers();
         object->UpdateObjectVisibility();
         object->SaveToDB();
+
+        // send to player
 
         Player* player = handler->GetSession()->GetPlayer();
         Map::PlayerList const& PlayerList = player->GetMap()->GetPlayers();

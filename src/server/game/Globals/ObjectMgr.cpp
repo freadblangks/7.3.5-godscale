@@ -1399,6 +1399,7 @@ void ObjectMgr::LoadEquipmentTemplates()
 
 CreatureModelInfo const* ObjectMgr::GetCreatureModelInfo(uint32 modelId) const
 {
+    // dress npc 
     modelId = GetRealDisplayId(modelId);
     CreatureModelContainer::const_iterator itr = _creatureModelStore.find(modelId);
     if (itr != _creatureModelStore.end())
@@ -1450,6 +1451,7 @@ void ObjectMgr::ChooseCreatureFlags(CreatureTemplate const* cInfo, uint64& npcFl
 CreatureModelInfo const* ObjectMgr::GetCreatureModelRandomGender(uint32* displayID) const
 {
     {
+        //dresse npc
         uint32 displayid_temp = GetRealDisplayId(*displayID);
         if (displayid_temp != *displayID)
              return GetCreatureModelRandomGender(&displayid_temp);
@@ -8257,8 +8259,8 @@ void ObjectMgr::LoadCreatureOutfits()
     for (auto* e : sChrRacesStore)
     {
         const char* error = "Dress NPCs requires an entry in creature_model_info for modelid %u (%s %s)";
-        ASSERT(GetCreatureModelInfo(e->MaleDisplayId), error, e->MaleDisplayId, e->Name->Str[DEFAULT_LOCALE], "Male");
-        ASSERT(GetCreatureModelInfo(e->FemaleDisplayId), error, e->FemaleDisplayId, e->Name->Str[DEFAULT_LOCALE], "Female");
+        ASSERT(GetCreatureModelInfo(e->MaleDisplayID), error, e->MaleDisplayID, e->Name->Str[DEFAULT_LOCALE], "Male");
+        ASSERT(GetCreatureModelInfo(e->FemaleDisplayID), error, e->FemaleDisplayID, e->Name->Str[DEFAULT_LOCALE], "Female");
     }
 
     QueryResult result = WorldDatabase.Query("SELECT entry, npcsoundsid, race, class, gender, skin, face, hair, haircolor, facialhair, feature1, feature2, feature3, "
@@ -8315,8 +8317,8 @@ void ObjectMgr::LoadCreatureOutfits()
         co->gender = fields[i++].GetUInt8();
         switch (co->gender)
         {
-        case GENDER_FEMALE: co->displayId = rEntry->FemaleDisplayId; break;
-        case GENDER_MALE:   co->displayId = rEntry->MaleDisplayId; break;
+        case GENDER_FEMALE: co->displayId = rEntry->FemaleDisplayID; break;
+        case GENDER_MALE:   co->displayId = rEntry->MaleDisplayID; break;
         default:
             TC_LOG_ERROR("server.loading", ">> Outfit entry %u in `creature_template_outfits` has invalid gender %u", entry, uint32(co->gender));
             continue;

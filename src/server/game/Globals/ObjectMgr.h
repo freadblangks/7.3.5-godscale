@@ -1694,6 +1694,8 @@ class TC_GAME_API ObjectMgr
         PageTextContainer _pageTextStore;
         InstanceTemplateContainer _instanceTemplateStore;
 
+        //dress npc
+
         CreatureOutfitContainer _creatureOutfitStore;
 
         TerrainPhaseInfo _terrainPhaseInfoStore;
