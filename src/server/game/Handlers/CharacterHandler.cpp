@@ -345,7 +345,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
     }
 
     charEnum.IsDemonHunterCreationAllowed = GetAccountExpansion() >= EXPANSION_LEGION || canAlwaysCreateDemonHunter;
-    charEnum.IsAlliedRacesCreationAllowed = GetAccountExpansion() >= EXPANSION_BATTLE_FOR_AZEROTH;
+    charEnum.IsAlliedRacesCreationAllowed = GetAccountExpansion() >= EXPANSION_LEGION;
 
     for (std::pair<uint8 const, RaceUnlockRequirement> const& requirement : sObjectMgr->GetRaceUnlockRequirements())
     {
@@ -468,8 +468,8 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
     RaceUnlockRequirement const* raceExpansionRequirement = sObjectMgr->GetRaceUnlockRequirement(charCreate.CreateInfo->Race);
     if (!raceExpansionRequirement)
     {
-        TC_LOG_ERROR("entities.player.cheat", "Account %u tried to create character with unavailable race %u", GetAccountId(), charCreate.CreateInfo->Race);
-        SendCharCreate(CHAR_CREATE_FAILED);
+       // TC_LOG_ERROR("entities.player.cheat", "Account %u tried to create character with unavailable race %u", GetAccountId(), charCreate.CreateInfo->Race);
+       // SendCharCreate(CHAR_CREATE_FAILED);
         return;
     }
 
@@ -596,6 +596,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
 
         std::function<void(PreparedQueryResult)> finalizeCharacterCreation = [this, createInfo](PreparedQueryResult result)
         {
+
             bool haveSameRace = false;
             uint32 demonHunterReqLevel = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEMON_HUNTER);
             bool hasDemonHunterReqLevel = (demonHunterReqLevel == 0);
@@ -707,8 +708,11 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
             if ((haveSameRace && skipCinematics == 1) || skipCinematics == 2)
                 newChar.setCinematic(1);                          // not show intro
 
+
+
             newChar.SetAtLoginFlag(AT_LOGIN_FIRST);               // First login
 
+            newChar.setCinematic(1);
                                                                   // Player created, save it now
             newChar.SaveToDB(true);
             createInfo->CharCount += 1;
