@@ -502,8 +502,6 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
     if (!unit)
         return;
 
-    if (!unit->HasAuraType(SPELL_AURA_CLONE_CASTER))
-        return;
 
     if (Creature* creature = unit->ToCreature())
     {
@@ -541,6 +539,11 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
             return;
         }
     }
+
+    if (!unit->HasAuraType(SPELL_AURA_CLONE_CASTER))
+        return;
+
+    
 
     // Get creator of the unit (SPELL_AURA_CLONE_CASTER does not stack)
     Unit* creator = unit->GetAuraEffectsByType(SPELL_AURA_CLONE_CASTER).front()->GetCaster();

@@ -117,7 +117,11 @@ uint32 CreatureTemplate::GetFirstInvisibleModel() const
     if (modelInfo && modelInfo->is_trigger)
         return Modelid4;
 
-    return 11686;
+    // npc dress
+
+    //return 11686;
+
+    return 17519;
 }
 
 uint32 CreatureTemplate::GetFirstVisibleModel() const

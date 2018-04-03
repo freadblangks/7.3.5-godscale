@@ -23,13 +23,14 @@
 #include "IteratorPair.h"
 #include "Log.h"
 #include "ObjectDefines.h"
+#include "ObjectMgr.h"
 #include "Regex.h"
 #include "Timer.h"
 #include "Util.h"
 #include <array>
 #include <sstream>
 #include <cctype>
-#include "ObjectMgr.h"
+
 
 // temporary hack until includes are sorted out (don't want to pull in Windows.h)
 #ifdef GetClassName
